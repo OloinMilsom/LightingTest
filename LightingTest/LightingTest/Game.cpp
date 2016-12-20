@@ -40,48 +40,26 @@ bool Game::initSDL(int width, int height, const char* title) {
 		return false;
 	}
 
-	screen = SDL_CreateRGBSurface(0, width, height, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
-	if (screen == NULL)
-	{
-		// In the case that the renderer could not be made...
-		std::cout << "Could not create screen: " << SDL_GetError() << std::endl;
-		return false;
-	}
+	LightManager::getInstance()->init(width, height, renderer);
 
 	return true;
 }
 
 void Game::loop() {
 	while (true) {
+		LightManager::getInstance()->update();
+
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 		SDL_RenderClear(renderer);
 
-		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 		SDL_Rect sr1 = { 0, 0, 800, 600 };
 		SDL_Rect sr2 = { 100, 100, 100, 100 };
-		SDL_FillRect(screen, &sr1, SDL_MapRGB(screen->format, 64, 64, 64));
-		SDL_FillRect(screen, &sr2, SDL_MapRGB(screen->format, 255, 0, 0));
+		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 255);
+		SDL_RenderFillRect(renderer, &sr1);
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+		SDL_RenderFillRect(renderer, &sr2);
 
-		Uint32 * pixels = static_cast<Uint32 *>(screen->pixels);
-		for (int i = 0; i < 800 * 600; i++) {
-			Uint8 r = 0;
-			Uint8 g = 0;
-			Uint8 b = 0;
-			SDL_GetRGB(pixels[i], screen->format, &r, &g, &b);
-			float distance = sqrt((i % 800) * (i % 800) + (i / 800) * (i / 800)) * 0.01f;
-			if (distance == 0)
-			{
-				distance = 1;
-			}
-			pixels[i] = SDL_MapRGB(screen->format, r / distance, g / distance, b / distance);
-		}
-		screen->pixels = pixels;
-
-		SDL_Texture * tex = SDL_CreateTextureFromSurface(renderer, screen);
-
-		SDL_RenderCopy(renderer, tex, NULL, NULL);
-
-		SDL_DestroyTexture(tex);
+		LightManager::getInstance()->render(renderer);
 
 		SDL_RenderPresent(renderer);
 	}
