@@ -44,14 +44,14 @@ void LightManager::update() {
 	memcpy(pixels, m_surface->pixels, m_surface->w * m_surface->h);
 
 	Uint32 * upixels = static_cast<Uint32 *>(pixels);
+	Uint8 r, g, b, a;
 	for (int i = 0; i < 800 * 600; i++) {
-		float distance = (i % 800) * (i % 800) + (i / 800) * (i / 800);
-		//std::cout << distance << std::endl;
-		if (distance == 0)
-		{
-			distance = 1;
+		r = g = b = 0;
+		m_isAmbient ? a = 255 - m_ambientLight : a = 255;
+		for (int j = 0; j < m_lights.size(); j++) {
+			m_lights[j]->calculatePixelValue(i % 800, i / 800, 200, r, g, b, a);
 		}
-		upixels[i] = SDL_MapRGBA(m_surface->format, 0, 0, 0, distance < 160000 ? (distance / 160000) * 255 : 255);
+		upixels[i] = SDL_MapRGBA(m_surface->format, r, g, b, a);
 	}
 
 	SDL_UnlockTexture(m_texture);
@@ -59,4 +59,20 @@ void LightManager::update() {
 
 void LightManager::render(SDL_Renderer * renderer) {
 	SDL_RenderCopy(renderer, m_texture, NULL, NULL);
+}
+
+void LightManager::setAmbient(bool val) {
+	m_isAmbient = val;
+}
+
+void LightManager::setAmbientIntensity(Uint8 val) {
+	m_ambientLight = val;
+}
+
+bool LightManager::addLight(std::string id, int x, int y, Uint16 intensity, Uint8 falloff, Uint8 r, Uint8 g, Uint8 b) {
+	//if (m_lights.find(id) == m_lights.end()) {
+		m_lights.push_back(new Light(x, y, intensity, falloff, r, g, b));
+		return true;
+	//}
+	//return false;
 }

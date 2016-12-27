@@ -41,19 +41,27 @@ bool Game::initSDL(int width, int height, const char* title) {
 	}
 
 	LightManager::getInstance()->init(width, height, renderer);
+	LightManager::getInstance()->addLight("light1", 100, 100, 200, 2, 40, 20, 130);
+	LightManager::getInstance()->addLight("light2", 400, 200, 400, 2, 255, 20, 130);
+	LightManager::getInstance()->setAmbient(true);
 
 	return true;
 }
 
 void Game::loop() {
+	int counter = 0;
 	while (true) {
+
+		LightManager::getInstance()->setAmbientIntensity(counter);
+		counter += 16;
+
 		LightManager::getInstance()->update();
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 		SDL_RenderClear(renderer);
 
 		SDL_Rect sr1 = { 0, 0, 800, 600 };
-		SDL_Rect sr2 = { 100, 100, 100, 100 };
+		SDL_Rect sr2 = { rand() % 700, rand() % 500, 100, 100 };
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 255);
 		SDL_RenderFillRect(renderer, &sr1);
 		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);

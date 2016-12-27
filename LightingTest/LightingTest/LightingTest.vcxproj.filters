@@ -30,12 +30,18 @@
     <ClCompile Include="LightingComponent\src\LightManager.cpp">
       <Filter>Source Files\Component</Filter>
     </ClCompile>
+    <ClCompile Include="LightingComponent\src\Light.cpp">
+      <Filter>Source Files\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LightingComponent\include\LightManager.h">
+      <Filter>Header Files\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingComponent\include\Light.h">
       <Filter>Header Files\Component</Filter>
     </ClInclude>
   </ItemGroup>
