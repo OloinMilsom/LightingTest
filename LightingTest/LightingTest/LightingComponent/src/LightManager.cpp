@@ -49,7 +49,7 @@ void LightManager::update() {
 		r = g = b = 0;
 		m_isAmbient ? a = 255 - m_ambientLight : a = 255;
 		for (int j = 0; j < m_lights.size(); j++) {
-			m_lights[j]->calculatePixelValue(i % 800, i / 800, 200, r, g, b, a);
+			m_lights[j]->calculatePixelValue(i % 800, i / 800, 255 - m_ambientLight, r, g, b, a);
 		}
 		upixels[i] = SDL_MapRGBA(m_surface->format, r, g, b, a);
 	}
@@ -69,7 +69,7 @@ void LightManager::setAmbientIntensity(Uint8 val) {
 	m_ambientLight = val;
 }
 
-bool LightManager::addLight(std::string id, int x, int y, Uint16 intensity, Uint8 falloff, Uint8 r, Uint8 g, Uint8 b) {
+bool LightManager::addLight(std::string id, int x, int y, Uint16 intensity, float falloff, Uint8 r, Uint8 g, Uint8 b) {
 	//if (m_lights.find(id) == m_lights.end()) {
 		m_lights.push_back(new Light(x, y, intensity, falloff, r, g, b));
 		return true;

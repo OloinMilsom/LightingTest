@@ -21,5 +21,5 @@ public:
 	void render(SDL_Renderer * renderer);
 	void setAmbient(bool val);
 	void setAmbientIntensity(Uint8 val);
-	bool addLight(std::string id, int x, int y, Uint16 intensity, Uint8 falloff, Uint8 r, Uint8 g, Uint8 b);
+	bool addLight(std::string id, int x, int y, Uint16 intensity, float falloff, Uint8 r, Uint8 g, Uint8 b);
 };
