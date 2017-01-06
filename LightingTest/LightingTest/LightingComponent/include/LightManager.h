@@ -3,6 +3,7 @@
 #include <string>
 #include "SDL.h"
 #include "Light.h"
+#include "ShadowCaster.h"
 
 class LightManager {
 private:
@@ -10,10 +11,16 @@ private:
 	SDL_Surface * m_surface;
 	SDL_Texture * m_texture; 
 	std::vector<Light *> m_lights;
+	std::vector<ShadowCaster *> m_shadowCasters;
+
+	// temp visualisation of rays
+	std::vector<Ray> m_rays;
+
 	bool m_isAmbient;
 	Uint8 m_ambientLight;
 
 	LightManager();
+	void calculateRays(SDL_Point lightPoint);
 public:
 	static LightManager * getInstance();
 	bool init(int width, int height, SDL_Renderer * renderer);
@@ -21,5 +28,6 @@ public:
 	void render(SDL_Renderer * renderer);
 	void setAmbient(bool val);
 	void setAmbientIntensity(Uint8 val);
-	bool addLight(std::string id, int x, int y, Uint16 intensity, float falloff, Uint8 r, Uint8 g, Uint8 b);
+	Light * addLight();
+	ShadowCaster * addShadowObject();
 };

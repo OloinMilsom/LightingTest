@@ -1,11 +1,7 @@
 #include "Light.h"
 #include <iostream>
 
-Light::Light(int x, int y, Uint16 intensity, float falloff, Uint8 r, Uint8 g, Uint8 b) 
-	:m_pos({ x, y }),
-	 m_intensity(intensity),
-	 m_falloff(falloff),
-	m_col({ r,g,b }) {
+Light::Light() {
 }
 
 bool Light::calculatePixelValue(int x, int y, Uint8 ambient, Uint8 & r, Uint8 & g, Uint8 & b, Uint8 & a) {
@@ -20,4 +16,28 @@ bool Light::calculatePixelValue(int x, int y, Uint8 ambient, Uint8 & r, Uint8 & 
 		return true;
 	}
 	return false;
+}
+
+void Light::setPos(int x, int y) {
+	m_pos = { x, y };
+}
+
+void Light::setPos(SDL_Point point) {
+	m_pos = point;
+}
+
+void Light::setIntensity(Uint16 intensity) {
+	m_intensity = intensity;
+}
+
+void Light::setFalloff(float falloff) {
+	m_falloff = falloff;
+}
+
+void Light::setColour(Uint8 r, Uint8 g, Uint8 b) {
+	m_col = { r, g, b };
+}
+
+void Light::setColour(RGB col) {
+	m_col = col;
 }
