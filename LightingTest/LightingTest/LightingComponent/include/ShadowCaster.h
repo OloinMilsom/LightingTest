@@ -12,6 +12,9 @@ class ShadowCaster {
 private:
 	ShadowCaster();
 	float getMinTVal(Ray ray);
+	// gets scalar along ray a that is its intersection with ray b
+	// return -1 if no valid scalar was found
+	float getRayIntersect(Ray a, Ray b);
 	SDL_Point m_pos;
 	std::vector<SDL_Point> m_vertices;
 public:

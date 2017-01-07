@@ -50,7 +50,7 @@ void LightManager::calculateRays(SDL_Point lightPoint) {
 			m_rays.push_back({ lightPoint,{ (m_shadowCasters[i]->m_pos.x + m_shadowCasters[i]->m_vertices[j].x - lightPoint.x) * 1000, (m_shadowCasters[i]->m_pos.y + m_shadowCasters[i]->m_vertices[j].y - lightPoint.y) * 1000 } });
 		}
 	}	
-	/*for (int i = 0; i < m_rays.size(); i++) {
+	for (int i = 0; i < m_rays.size(); i++) {
 		float minT = std::numeric_limits<float>::max();
 		for (int j = 0; j < m_shadowCasters.size(); j++) {
 			float tentativeT = m_shadowCasters[j]->getMinTVal(m_rays[i]);
@@ -60,7 +60,7 @@ void LightManager::calculateRays(SDL_Point lightPoint) {
 		}
 		m_rays[i].dir.x *= minT;
 		m_rays[i].dir.y *= minT;
-	}*/
+	}
 }
 
 void LightManager::update() {
