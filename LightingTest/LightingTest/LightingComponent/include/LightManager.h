@@ -40,3 +40,4 @@ public:
 	Light * addLight();
 	ShadowCaster * addShadowObject();
 };
+
