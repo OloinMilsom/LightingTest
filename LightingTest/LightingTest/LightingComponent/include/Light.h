@@ -12,7 +12,7 @@ class Light {
 	friend class LightManager;
 private:
 	Light();
-	bool calculatePixelValue(int x, int y, Uint8 ambient, Uint8 & r, Uint8 & g, Uint8 & b, Uint8 & a);
+	bool calculatePixelValue(Uint32 * upixels);
 
 	const Uint8 MIN_ALPHA = 100;
 	SDL_Point m_pos;
