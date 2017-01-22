@@ -3,8 +3,7 @@
 ShadowCaster::ShadowCaster() {
 }
 
-float ShadowCaster::getMinTVal(Ray ray) {
-	float result = std::numeric_limits<float>::max();
+void ShadowCaster::getMinTVal(Ray * ray, int id) const {
 	for (int i = 0; i < m_vertices.size(); i++) {
 		SDL_Point pos = { m_pos.x + m_vertices[i].x, m_pos.y + m_vertices[i].y };
 		SDL_Point dir;
@@ -16,23 +15,14 @@ float ShadowCaster::getMinTVal(Ray ray) {
 			dir.x = m_vertices[i + 1].x - m_vertices[i].x;
 			dir.y = m_vertices[i + 1].y - m_vertices[i].y;
 		}
-		float u = getRayIntersect(ray, { pos, dir });
-		float v = getRayIntersect({ pos, dir }, ray);
+		Ray temp = Ray(pos, dir);
+		float u = ray->getRayIntersect(&temp);
+		float v = temp.getRayIntersect(ray);
 		if (u >= 0 && v >= 0 && v <= 1)
 		{
-			if (u < result) {
-				result = u;
-			}
+			ray->addFactor(u, id);
 		}
 	}
-	return result;
-}
-
-float ShadowCaster::getRayIntersect(Ray a, Ray b) {
-	if ((a.dir.x * b.dir.y) - (a.dir.y * b.dir.x) != 0) {
-		return static_cast<float>((a.pos.y * b.dir.x) + (b.dir.y * b.pos.x) - (b.pos.y * b.dir.x) - (b.dir.y * a.pos.x)) / static_cast<float>((a.dir.x * b.dir.y) - (a.dir.y * b.dir.x));
-	}
-	return -1;
 }
 
 void ShadowCaster::setPos(int x, int y){

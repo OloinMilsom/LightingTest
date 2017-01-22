@@ -5,22 +5,32 @@
 #include "Light.h"
 #include "ShadowCaster.h"
 
+struct Triangle {
+	SDL_Point p1;
+	SDL_Point p2;
+	SDL_Point p3;
+};
+
 class LightManager {
 private:
 	static LightManager * m_instance;
 	SDL_Surface * m_surface;
+	SDL_Surface * m_shadowSurface;
 	SDL_Texture * m_texture; 
 	std::vector<Light *> m_lights;
 	std::vector<ShadowCaster *> m_shadowCasters;
 
 	// temp visualisation of rays
 	std::vector<Ray> m_rays;
+	// temp visualisation of triangles
+	std::vector<Triangle> m_triangles;
 
 	bool m_isAmbient;
 	Uint8 m_ambientLight;
 
 	LightManager();
-	void calculateRays(SDL_Point lightPoint);
+	std::vector<Triangle> calculateTriangles(SDL_Point lightPoint);
+	bool insideTriangle(SDL_Point p, Triangle t);
 public:
 	static LightManager * getInstance();
 	bool init(int width, int height, SDL_Renderer * renderer);

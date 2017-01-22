@@ -44,23 +44,76 @@ bool LightManager::init(int width, int height, SDL_Renderer * renderer) {
 	return true;
 }
 
-void LightManager::calculateRays(SDL_Point lightPoint) {
+std::vector<Triangle> LightManager::calculateTriangles(SDL_Point lightPoint) {
+	std::vector<Triangle> result;
 	for (int i = 0; i < m_shadowCasters.size(); i++) {
 		for (int j = 0; j < m_shadowCasters[i]->m_vertices.size(); j++) {
-			m_rays.push_back({ lightPoint,{ (m_shadowCasters[i]->m_pos.x + m_shadowCasters[i]->m_vertices[j].x - lightPoint.x) * 1000, (m_shadowCasters[i]->m_pos.y + m_shadowCasters[i]->m_vertices[j].y - lightPoint.y) * 1000 } });
+			m_rays.push_back({ lightPoint,{ (m_shadowCasters[i]->m_pos.x + m_shadowCasters[i]->m_vertices[j].x - lightPoint.x), (m_shadowCasters[i]->m_pos.y + m_shadowCasters[i]->m_vertices[j].y - lightPoint.y) } });
 		}
 	}	
+	std::sort(m_rays.begin(), m_rays.end());
+
+	int prevCasterId = -1;
+	float prevFactor = 1;
+	Ray prevRay({}, {});
+	bool found = false;
 	for (int i = 0; i < m_rays.size(); i++) {
-		float minT = std::numeric_limits<float>::max();
 		for (int j = 0; j < m_shadowCasters.size(); j++) {
-			float tentativeT = m_shadowCasters[j]->getMinTVal(m_rays[i]);
-			if (tentativeT < minT && tentativeT > 0) {
-				minT = tentativeT;
+			m_shadowCasters[j]->getMinTVal(&m_rays[i], j);
+		}
+		m_rays[i].sortFactors();
+		if (prevCasterId != -1) {
+			for (int j = 0; j < m_rays[i].noOfFactors(); j++) {
+				if (m_rays[i].getFactor(j).second == prevCasterId) {
+					result.push_back({ lightPoint, prevRay.endPointByFactor(prevFactor), m_rays[i].endPointByFactor(m_rays[i].getFactor(j).first) });
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				for (int j = 0; j < prevRay.noOfFactors(); j++) {
+					if (prevRay.getFactor(j).second == m_rays[i].getFactor(0).second) {
+						result.push_back({ lightPoint, prevRay.endPointByFactor(prevRay.getFactor(j).first), m_rays[i].endPointByFactor(m_rays[i].getFactor(0).first) });
+						break;
+					}
+				}
 			}
 		}
-		m_rays[i].dir.x *= minT;
-		m_rays[i].dir.y *= minT;
+		prevRay = m_rays[i];
+		prevCasterId = m_rays[i].getFactor(0).second;
+		prevFactor = m_rays[i].getFactor(0).first;
+		found = false;
 	}
+
+	for (int j = 0; j < m_rays[0].noOfFactors(); j++) {
+		if (m_rays[0].getFactor(j).second == prevCasterId) {
+			result.push_back({ lightPoint, prevRay.endPointByFactor(prevFactor), m_rays[0].endPointByFactor(m_rays[0].getFactor(j).first) });
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		for (int j = 0; j < prevRay.noOfFactors(); j++) {
+			if (prevRay.getFactor(j).second == m_rays[0].getFactor(0).second) {
+				result.push_back({ lightPoint, prevRay.endPointByFactor(prevRay.getFactor(j).first), m_rays[0].endPointByFactor(m_rays[0].getFactor(0).first) });
+				break;
+			}
+		}
+	}
+
+	return result;
+}
+
+bool LightManager::insideTriangle(SDL_Point p, Triangle t) {
+	float alpha = static_cast<float>((t.p2.y - t.p3.y)*(p.x - t.p3.x) + (t.p3.x - t.p2.x)*(p.y - t.p3.y)) /
+		static_cast<float>((t.p2.y - t.p3.y)*(t.p1.x - t.p3.x) + (t.p3.x - t.p2.x)*(t.p1.y - t.p3.y));
+	float beta = static_cast<float>((t.p3.y - t.p1.y)*(p.x - t.p3.x) + (t.p1.x - t.p3.x)*(p.y - t.p3.y)) /
+		static_cast<float>((t.p2.y - t.p3.y)*(t.p1.x - t.p3.x) + (t.p3.x - t.p2.x)*(t.p1.y - t.p3.y));
+	float gamma = 1.0f - alpha - beta;
+	if (alpha > 0 && beta > 0 && gamma > 0) {
+		return true;
+	}
+	return false;
 }
 
 void LightManager::update() {
@@ -76,22 +129,29 @@ void LightManager::update() {
 		r = g = b = 0;
 		m_isAmbient ? a = 255 - m_ambientLight : a = 255;
 		for (int j = 0; j < m_lights.size(); j++) {
-			m_lights[j]->calculatePixelValue(i % 800, i / 800, 255 - m_ambientLight, r, g, b, a);
+			bool canCalculate = false;
+			for (int k = 0; k < m_triangles.size(); k++) {
+				canCalculate |= insideTriangle({ i % 800, i / 800 }, m_triangles[k]);
+			}
+			if (canCalculate) {
+				m_lights[j]->calculatePixelValue(i % 800, i / 800, 255 - m_ambientLight, r, g, b, a);
+			}
 		}
 		upixels[i] = SDL_MapRGBA(m_surface->format, r, g, b, a);
 	}
-	calculateRays(m_lights[0]->m_pos);
 	SDL_UnlockTexture(m_texture);
 
+	m_triangles = calculateTriangles(m_lights[0]->m_pos);
 }
 
 void LightManager::render(SDL_Renderer * renderer) {
 	SDL_RenderCopy(renderer, m_texture, NULL, NULL);
-	for (int i = 0; i < m_rays.size(); i++) {
+	/*for (int i = 0; i < m_triangles.size(); i++) {
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		SDL_RenderDrawLine(renderer, m_rays[i].pos.x, m_rays[i].pos.y, m_rays[i].pos.x + m_rays[i].dir.x, m_rays[i].pos.y + m_rays[i].dir.y);
-		SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
-	}
+		SDL_RenderDrawLine(renderer, m_triangles[i].p1.x, m_triangles[i].p1.y, m_triangles[i].p2.x, m_triangles[i].p2.y);
+		SDL_RenderDrawLine(renderer, m_triangles[i].p2.x, m_triangles[i].p2.y, m_triangles[i].p3.x, m_triangles[i].p3.y);
+		SDL_RenderDrawLine(renderer, m_triangles[i].p3.x, m_triangles[i].p3.y, m_triangles[i].p1.x, m_triangles[i].p1.y);
+	}*/
 	m_rays.clear();
 }
 
