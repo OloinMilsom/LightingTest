@@ -125,6 +125,7 @@
     <ClCompile Include="LightingComponent\SDL_gfx\SDL2_rotozoom.c" />
     <ClCompile Include="LightingComponent\src\Light.cpp" />
     <ClCompile Include="LightingComponent\src\LightManager.cpp" />
+    <ClCompile Include="LightingComponent\src\PolyDraw.cpp" />
     <ClCompile Include="LightingComponent\src\Ray.cpp" />
     <ClCompile Include="LightingComponent\src\ShadowCaster.cpp" />
     <ClCompile Include="main.cpp" />
@@ -133,6 +134,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="LightingComponent\include\Light.h" />
     <ClInclude Include="LightingComponent\include\LightManager.h" />
+    <ClInclude Include="LightingComponent\include\PolyDraw.h" />
     <ClInclude Include="LightingComponent\include\Ray.h" />
     <ClInclude Include="LightingComponent\include\ShadowCaster.h" />
     <ClInclude Include="LightingComponent\SDL_gfx\SDL2_framerate.h" />

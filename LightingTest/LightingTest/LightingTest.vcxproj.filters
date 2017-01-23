@@ -57,6 +57,9 @@
     <ClCompile Include="LightingComponent\SDL_gfx\SDL2_rotozoom.c">
       <Filter>Source Files\SDL_GFX</Filter>
     </ClCompile>
+    <ClCompile Include="LightingComponent\src\PolyDraw.cpp">
+      <Filter>Source Files\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -88,6 +91,9 @@
     </ClInclude>
     <ClInclude Include="LightingComponent\SDL_gfx\SDL2_rotozoom.h">
       <Filter>Header Files\SDL_GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingComponent\include\PolyDraw.h">
+      <Filter>Header Files\Component</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -49,15 +49,15 @@ bool Game::initSDL(int width, int height, const char* title) {
 	LightManager::getInstance()->init(width, height, renderer);
 	l1 = LightManager::getInstance()->addLight();
 	l1->setPos(200, 300);
-	l1->setIntensity(400);
+	l1->setIntensity(500);
 	l1->setFalloff(2);
-	l1->setColour(255, 20, 200);
+	l1->setColour(0, 255, 220);
 
-	/*Light * l2 = LightManager::getInstance()->addLight();	
+	Light * l2 = LightManager::getInstance()->addLight();	
 	l2->setPos(600, 300);
-	l2->setIntensity(400);
+	l2->setIntensity(300);
 	l2->setFalloff(2);
-	l2->setColour(255, 20, 130);*/
+	l2->setColour(255, 0, 255);
 
 	s1 = LightManager::getInstance()->addShadowObject();
 	s1->setPos(sr2.x, sr2.y);
@@ -81,7 +81,7 @@ void Game::loop() {
 		l1->setPos(400 + 100 * cos(counter), 300 + 100 * sin(counter));
 		//sr2 = { rand() % 700, rand() % 500, 100, 100 };
 
-		s1->setPos(sr2.x, sr2.y);
+		//s1->setPos(sr2.x, sr2.y);
 		LightManager::getInstance()->update();
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
