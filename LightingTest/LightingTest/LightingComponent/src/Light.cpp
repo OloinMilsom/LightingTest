@@ -2,11 +2,21 @@
 #include "LightManager.h"
 #include <iostream>
 
-Light::Light() {
+Light::Light(int width, int height) {
+	m_surface = SDL_CreateRGBSurface(0, width, height, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
+	
 }
 
-bool Light::calculatePixelValue(Uint32 * upixels) {
-	LightManager::getInstance()->calculateTriangles(m_pos);
+bool Light::calculatePixelValue() {
+	Uint32 * upixels = static_cast<Uint32 *>(m_surface->pixels);
+
+	for (int i = 0; i < 800 * 600; i++) {
+		upixels[i] = SDL_MapRGBA(m_surface->format, 0, 0, 0, 0);
+	}
+
+	m_poly.xs.clear();
+	m_poly.ys.clear();
+	LightManager::getInstance()->calculateTriangles(m_pos, &m_poly);
 	for (int i = 0; i < 800 * 600; i++) {
 		int x = i % 800;
 		int y = i / 800;
@@ -32,6 +42,14 @@ bool Light::calculatePixelValue(Uint32 * upixels) {
 		}
 	}
 	return true;
+}
+
+Polygon Light::getPoly() const {
+	return m_poly;
+}
+
+SDL_Surface * Light::getSurface() const {
+	return m_surface;
 }
 
 void Light::setPos(int x, int y) {

@@ -51,13 +51,13 @@ bool Game::initSDL(int width, int height, const char* title) {
 	l1->setPos(200, 300);
 	l1->setIntensity(400);
 	l1->setFalloff(2);
-	l1->setColour(255, 0, 0);
+	l1->setColour(255, 20, 200);
 
-	//Light * l2 = LightManager::getInstance()->addLight();	
-	//l2->setPos(600, 300);
-	//l2->setIntensity(400);
-	//l2->setFalloff(2);
-	//l2->setColour(255, 20, 130);
+	/*Light * l2 = LightManager::getInstance()->addLight();	
+	l2->setPos(600, 300);
+	l2->setIntensity(400);
+	l2->setFalloff(2);
+	l2->setColour(255, 20, 130);*/
 
 	s1 = LightManager::getInstance()->addShadowObject();
 	s1->setPos(sr2.x, sr2.y);
@@ -67,7 +67,7 @@ bool Game::initSDL(int width, int height, const char* title) {
 	s1->addVertex(0, 100);
 
 	LightManager::getInstance()->setAmbient(true);
-	LightManager::getInstance()->setAmbientIntensity(20);
+	LightManager::getInstance()->setAmbientIntensity(30);
 
 	return true;
 }

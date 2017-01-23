@@ -1,5 +1,11 @@
 #pragma once
 #include "SDL.h"
+#include <vector>
+
+struct Polygon {
+	std::vector<Sint16> xs;
+	std::vector<Sint16> ys;
+};
 
 struct RGB {
 public:
@@ -11,14 +17,18 @@ public:
 class Light {
 	friend class LightManager;
 private:
-	Light();
-	bool calculatePixelValue(Uint32 * upixels);
+	Light(int width, int height);
+	bool calculatePixelValue();
+	Polygon getPoly() const;
+	SDL_Surface * getSurface() const;
 
 	const Uint8 MIN_ALPHA = 100;
 	SDL_Point m_pos;
 	Uint16 m_intensity;
 	float m_falloff;
 	RGB m_col;
+	SDL_Surface * m_surface;
+	Polygon m_poly;
 public:
 	void setPos(int x, int y);
 	void setPos(SDL_Point point);

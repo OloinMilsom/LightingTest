@@ -45,7 +45,7 @@ bool LightManager::init(int width, int height, SDL_Renderer * renderer) {
 	return true;
 }
 
-void LightManager::calculateTriangles(SDL_Point lightPoint) {
+void LightManager::calculateTriangles(SDL_Point lightPoint, Polygon * poly) {
 	std::vector<Ray> rays;
 	for (int i = 0; i < m_shadowCasters.size(); i++) {
 		for (int j = 0; j < m_shadowCasters[i]->m_vertices.size(); j++) {
@@ -67,8 +67,8 @@ void LightManager::calculateTriangles(SDL_Point lightPoint) {
 			for (int j = 0; j < rays[i].noOfFactors(); j++) {
 				if (rays[i].getFactor(j).second == prevCasterId) {
 					SDL_Point p1 = rays[i].endPointByFactor(rays[i].getFactor(j).first);
-					m_poly.xs.push_back(p1.x);
-					m_poly.ys.push_back(p1.y);
+					poly->xs.push_back(p1.x);
+					poly->ys.push_back(p1.y);
 					break;
 				}
 			}
@@ -76,8 +76,8 @@ void LightManager::calculateTriangles(SDL_Point lightPoint) {
 				for (int j = 0; j < prevRay.noOfFactors(); j++) {
 					if (prevRay.getFactor(j).second == rays[i].getFactor(0).second) {
 						SDL_Point p1 = prevRay.endPointByFactor(prevRay.getFactor(j).first);
-						m_poly.xs.push_back(p1.x);
-						m_poly.ys.push_back(p1.y);
+						poly->xs.push_back(p1.x);
+						poly->ys.push_back(p1.y);
 						break;
 					}
 				}
@@ -85,8 +85,8 @@ void LightManager::calculateTriangles(SDL_Point lightPoint) {
 		}
 
 		SDL_Point p = rays[i].endPointByFactor(rays[i].getFactor(0).first);
-		m_poly.xs.push_back(p.x);
-		m_poly.ys.push_back(p.y);
+		poly->xs.push_back(p.x);
+		poly->ys.push_back(p.y);
 		prevCasterId = rays[i].getFactor(0).second;
 		prevRay = rays[i];
 	}
@@ -96,8 +96,8 @@ void LightManager::calculateTriangles(SDL_Point lightPoint) {
 		if (rays[0].getFactor(j).second == prevCasterId) {
 			if (rays[0].getFactor(j).second == prevCasterId) {
 				SDL_Point p1 = rays[0].endPointByFactor(rays[0].getFactor(j).first);
-				m_poly.xs.push_back(p1.x);
-				m_poly.ys.push_back(p1.y);
+				poly->xs.push_back(p1.x);
+				poly->ys.push_back(p1.y);
 				break;
 			}
 		}
@@ -105,8 +105,8 @@ void LightManager::calculateTriangles(SDL_Point lightPoint) {
 			for (int j = 0; j < prevRay.noOfFactors(); j++) {
 				if (prevRay.getFactor(j).second == rays[0].getFactor(0).second) {
 					SDL_Point p1 = prevRay.endPointByFactor(prevRay.getFactor(j).first);
-					m_poly.xs.push_back(p1.x);
-					m_poly.ys.push_back(p1.y);
+					poly->xs.push_back(p1.x);
+					poly->ys.push_back(p1.y);
 					break;
 				}
 			}
@@ -127,24 +127,35 @@ void LightManager::update() {
 
 	//memcpy(pixels, m_surface->pixels, m_surface->w * m_surface->h);
 
-	Uint32 * upixels = static_cast<Uint32 *>(m_surface->pixels);
-
-	for (int i = 0; i < 800 * 600; i++) {
-		upixels[i] = SDL_MapRGBA(m_surface->format, 0, 0, 0, m_isAmbient ? m_ambientLight : 255);
-	}
-
 	for (int j = 0; j < m_lights.size(); j++) {
-		m_lights[j]->calculatePixelValue(upixels);
+		m_lights[j]->calculatePixelValue();
 	}
 	SDL_UnlockTexture(m_texture);
 }
 
 void LightManager::render(SDL_Renderer * renderer) {
-	if (!m_poly.xs.empty()) {
-		texturedPolygon(renderer, &m_poly.xs[0], &m_poly.ys[0], m_poly.xs.size(), m_surface, 0, 0);
+
+	/*SDL_SetRenderDrawBlendMode(renderer, SDL_BlendMode::SDL_BLENDMODE_BLEND);
+	SDL_Rect r;
+	r.x = r.y = 0;
+	r.w = 800;
+	r.h = 600;
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, m_ambientLight);
+	SDL_RenderFillRect(renderer, &r);*/
+	//SDL_SetRenderDrawBlendMode(renderer, SDL_BlendMode::SDL_BLENDMODE_NONE);
+	for (int i = 0; i < m_lights.size(); i++) {
+		if (!m_lights[i]->getPoly().xs.empty()) {
+			texturedPolygon(renderer, &m_lights[i]->getPoly().xs[0], &m_lights[i]->getPoly().ys[0], m_lights[i]->getPoly().xs.size(), m_lights[i]->getSurface(), 0, 0);
+		}
 	}
-	m_poly.xs.clear();
-	m_poly.ys.clear();
+	//m_poly.xs.clear();
+	//m_poly.ys.clear();
+	//SDL_Rect r;
+	//r.x = r.y = 0;
+	//r.w = 800;
+	//r.h = 600;
+	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
+	//SDL_RenderDrawRect(renderer, &r);
 	/*for (int i = 0; i < m_triangles.size(); i++) {
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderDrawLine(renderer, m_triangles[i].p1.x, m_triangles[i].p1.y, m_triangles[i].p2.x, m_triangles[i].p2.y);
@@ -163,7 +174,7 @@ void LightManager::setAmbientIntensity(Uint8 val) {
 
 Light * LightManager::addLight() {
 	//if (m_lights.find(id) == m_lights.end()) {
-	Light * l = new Light();
+	Light * l = new Light(m_surface->w, m_surface->h);
 	m_lights.push_back(l);
 	return l;
 	//}
