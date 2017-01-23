@@ -19,6 +19,12 @@
     <Filter Include="Source Files\Component">
       <UniqueIdentifier>{2836a6c5-f58a-4483-89c1-29f22fc17efc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\SDL_GFX">
+      <UniqueIdentifier>{fb3a06db-fc87-4ce3-8c29-11ed566a0683}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SDL_GFX">
+      <UniqueIdentifier>{d6046465-f97d-471e-a274-06c7f7a86015}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -39,6 +45,18 @@
     <ClCompile Include="LightingComponent\src\Ray.cpp">
       <Filter>Source Files\Component</Filter>
     </ClCompile>
+    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_framerate.c">
+      <Filter>Source Files\SDL_GFX</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_gfxPrimitives.c">
+      <Filter>Source Files\SDL_GFX</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_imageFilter.c">
+      <Filter>Source Files\SDL_GFX</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_rotozoom.c">
+      <Filter>Source Files\SDL_GFX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -55,6 +73,21 @@
     </ClInclude>
     <ClInclude Include="LightingComponent\include\Ray.h">
       <Filter>Header Files\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_framerate.h">
+      <Filter>Header Files\SDL_GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_gfxPrimitives.h">
+      <Filter>Header Files\SDL_GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_gfxPrimitives_font.h">
+      <Filter>Header Files\SDL_GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_imageFilter.h">
+      <Filter>Header Files\SDL_GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_rotozoom.h">
+      <Filter>Header Files\SDL_GFX</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -6,15 +6,15 @@ Light::Light() {
 }
 
 bool Light::calculatePixelValue(Uint32 * upixels) {
-	std::vector<Triangle> triangles = LightManager::getInstance()->calculateTriangles(m_pos);
+	LightManager::getInstance()->calculateTriangles(m_pos);
 	for (int i = 0; i < 800 * 600; i++) {
 		int x = i % 800;
 		int y = i / 800;
 		float distanceSqr = (x - m_pos.x) * (x - m_pos.x) + (y - m_pos.y) * (y - m_pos.y);
 		if (distanceSqr < m_intensity * m_intensity) {
-			for (int j = 0; j < triangles.size(); j++) {
-				SDL_Point r = { x,y };
-				if (LightManager::getInstance()->insideTriangle(&r, &triangles[j])) {
+			//for (int j = 0; j < triangles.size(); j++) {
+				//SDL_Point rect = { x,y };
+				//if (LightManager::getInstance()->insideTriangle(&rect, &triangles[j])) {
 					float distance = sqrt(distanceSqr);
 					Uint8 r, g, b, a;
 					SDL_GetRGBA(upixels[i], LightManager::m_instance->m_surface->format, &r, &g, &b, &a);
@@ -26,9 +26,9 @@ bool Light::calculatePixelValue(Uint32 * upixels) {
 					g += m_col.g * scale;
 					b += m_col.b * scale;
 					upixels[i] = SDL_MapRGBA(LightManager::m_instance->m_surface->format, r, g, b, a);
-					break;
-				}
-			}
+					//break;
+				//}
+			//}
 		}
 	}
 	return true;

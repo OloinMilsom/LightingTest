@@ -5,10 +5,9 @@
 #include "Light.h"
 #include "ShadowCaster.h"
 
-struct Triangle {
-	SDL_Point p1;
-	SDL_Point p2;
-	SDL_Point p3;
+struct Polygon {
+	std::vector<Sint16> xs;
+	std::vector<Sint16> ys;
 };
 
 class LightManager {
@@ -22,14 +21,14 @@ private:
 	std::vector<ShadowCaster *> m_shadowCasters;
 
 	// temp visualisation of triangles
-	std::vector<Triangle> m_triangles;
+	//std::vector<Triangle> m_triangles;
+	Polygon m_poly;
 
 	bool m_isAmbient;
 	Uint8 m_ambientLight;
 
 	LightManager();
-	std::vector<Triangle> calculateTriangles(SDL_Point lightPoint);
-	bool insideTriangle(SDL_Point * p, Triangle * t);
+	void calculateTriangles(SDL_Point lightPoint);
 public:
 	static LightManager * getInstance();
 	bool init(int width, int height, SDL_Renderer * renderer);

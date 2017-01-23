@@ -81,7 +81,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SDL_SDK)\include;$(ProjectDir)LightingComponent\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SDL_SDK)\include;$(ProjectDir)LightingComponent\include;$(ProjectDir)LightingComponent\SDL_gfx</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SDL_SDK)\lib\x64</AdditionalLibraryDirectories>
@@ -108,7 +108,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SDL_SDK)\include;$(ProjectDir)LightingComponent\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SDL_SDK)\include;$(ProjectDir)LightingComponent\include;$(ProjectDir)LightingComponent\SDL_gfx</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -119,6 +119,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_framerate.c" />
+    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_gfxPrimitives.c" />
+    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_imageFilter.c" />
+    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_rotozoom.c" />
     <ClCompile Include="LightingComponent\src\Light.cpp" />
     <ClCompile Include="LightingComponent\src\LightManager.cpp" />
     <ClCompile Include="LightingComponent\src\Ray.cpp" />
@@ -131,6 +135,11 @@
     <ClInclude Include="LightingComponent\include\LightManager.h" />
     <ClInclude Include="LightingComponent\include\Ray.h" />
     <ClInclude Include="LightingComponent\include\ShadowCaster.h" />
+    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_framerate.h" />
+    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_gfxPrimitives.h" />
+    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_gfxPrimitives_font.h" />
+    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_imageFilter.h" />
+    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_rotozoom.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
