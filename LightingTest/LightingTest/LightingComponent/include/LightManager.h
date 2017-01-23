@@ -12,6 +12,7 @@ struct Triangle {
 };
 
 class LightManager {
+	friend class Light;
 private:
 	static LightManager * m_instance;
 	SDL_Surface * m_surface;
@@ -20,8 +21,6 @@ private:
 	std::vector<Light *> m_lights;
 	std::vector<ShadowCaster *> m_shadowCasters;
 
-	// temp visualisation of rays
-	std::vector<Ray> m_rays;
 	// temp visualisation of triangles
 	std::vector<Triangle> m_triangles;
 
@@ -30,7 +29,7 @@ private:
 
 	LightManager();
 	std::vector<Triangle> calculateTriangles(SDL_Point lightPoint);
-	bool insideTriangle(SDL_Point p, Triangle t);
+	bool insideTriangle(SDL_Point * p, Triangle * t);
 public:
 	static LightManager * getInstance();
 	bool init(int width, int height, SDL_Renderer * renderer);
@@ -41,3 +40,4 @@ public:
 	Light * addLight();
 	ShadowCaster * addShadowObject();
 };
+
