@@ -1,5 +1,4 @@
 #include "LightManager.h"
-#include "PolyDraw.h"
 #include <iostream>
 
 LightManager * LightManager::m_instance = nullptr;
@@ -128,7 +127,7 @@ void LightManager::update() {
 	//memcpy(pixels, m_surface->pixels, m_surface->w * m_surface->h);
 
 	for (int j = 0; j < m_lights.size(); j++) {
-		m_lights[j]->calculatePixelValue();
+		m_lights[j]->calculatePixelValue(m_surface);
 	}
 	SDL_UnlockTexture(m_texture);
 }
@@ -142,16 +141,17 @@ void LightManager::render(SDL_Renderer * renderer) {
 	r.h = 600;
 	//SDL_RenderFillRect(renderer, &r);
 	//SDL_SetRenderDrawBlendMode(renderer, SDL_BlendMode::SDL_BLENDMODE_NONE);
-	SDL_FillRect(m_surface, &r, SDL_MapRGBA(m_surface->format, 0, 0, 0, m_ambientLight));
-	for (int i = 0; i < m_lights.size(); i++) {
-		if (!m_lights[i]->getPoly().xs.empty()) {
-			texturedPolygon(m_surface, &m_lights[i]->getPoly().xs[0], &m_lights[i]->getPoly().ys[0], m_lights[i]->getPoly().xs.size(), m_lights[i]->getSurface(), 0, 0, SDL_BlendMode::SDL_BLENDMODE_ADD);
-		}
-	}
+	//for (int i = 0; i < m_lights.size(); i++) {
+	//	if (!m_lights[i]->getPoly().xs.empty()) {
+	//		texturedPolygon(m_surface, &m_lights[i]->getPoly().xs[0], &m_lights[i]->getPoly().ys[0], m_lights[i]->getPoly().xs.size(), m_lights[i]->getSurface(), 0, 0, SDL_BlendMode::SDL_BLENDMODE_ADD);
+	//	}
+	//}
 	SDL_SetSurfaceBlendMode(m_surface, SDL_BlendMode::SDL_BLENDMODE_BLEND);
 	SDL_Texture * tex = SDL_CreateTextureFromSurface(renderer, m_surface);
 	SDL_RenderCopy(renderer, tex, NULL, NULL);
 	SDL_DestroyTexture(tex);
+
+	SDL_FillRect(m_surface, &r, SDL_MapRGBA(m_surface->format, 0, 0, 0, m_ambientLight));
 	//m_poly.xs.clear();
 	//m_poly.ys.clear();
 	//SDL_Rect r;

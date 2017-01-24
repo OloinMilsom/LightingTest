@@ -18,7 +18,7 @@ class Light {
 	friend class LightManager;
 private:
 	Light(int width, int height);
-	bool calculatePixelValue();
+	bool calculatePixelValue(SDL_Surface * destSurface);
 	Polygon getPoly() const;
 	SDL_Surface * getSurface() const;
 

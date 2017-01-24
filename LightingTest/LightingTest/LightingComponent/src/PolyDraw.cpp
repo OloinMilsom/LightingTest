@@ -5,24 +5,7 @@ int _gfxPrimitivesCompareInt(const void *a, const void *b) {
 	return (*(const int *)a) - (*(const int *)b);
 }
 
-/* ---- Textured Polygon */
-
-/*!
-\brief Internal function to draw a textured horizontal line.
-
-\param renderer The renderer to draw on.
-\param x1 X coordinate of the first point (i.e. left) of the line.
-\param x2 X coordinate of the second point (i.e. right) of the line.
-\param y Y coordinate of the points of the line.
-\param texture The texture to retrieve color information from.
-\param texture_w The width of the texture.
-\param texture_h The height of the texture.
-\param texture_dx The X offset for the texture lookup.
-\param texture_dy The Y offset for the textured lookup.
-
-\returns Returns 0 on success, -1 on failure.
-*/
-int _HLineTextured(SDL_Surface *dest, Sint16 x1, Sint16 x2, Sint16 y, SDL_Surface * source, int texture_w, int texture_h, int texture_dx, int texture_dy) {
+int _HLineTextured(SDL_Surface *dest, Sint16 x1, Sint16 x2, Sint16 y, SDL_Surface * source, int texture_w, int texture_h, int texture_dx, int texture_dy, Uint32(*pixelfunc)(Uint32, Uint32, SDL_PixelFormat *, SDL_PixelFormat *)) {
 	Sint16 w;
 	Sint16 xtmp;
 	int result = 0;
@@ -74,7 +57,16 @@ int _HLineTextured(SDL_Surface *dest, Sint16 x1, Sint16 x2, Sint16 y, SDL_Surfac
 		source_rect.x = texture_x_walker;
 		dst_rect.x = x1;
 		dst_rect.w = source_rect.w;
-		result = (SDL_BlitSurface(source, &source_rect, dest, &dst_rect) == 0);
+		
+		Uint32 * source_pixels = (Uint32 *)source->pixels;
+		Uint32 * dest_pixels = (Uint32 *)dest->pixels;
+
+		int x_dist = dst_rect.w;
+		for (int x = 0; x < x_dist; x++) {
+			int dest_index = (dst_rect.y * dest->w) + dst_rect.x + x;
+			int sourcrc_index = (source_rect.y * dest->w) + source_rect.x + x;
+			dest_pixels[dest_index] = pixelfunc(dest_pixels[dest_index], source_pixels[sourcrc_index], dest->format, source->format);
+		}
 	}
 	else {
 		// we need to draw multiple times
@@ -83,8 +75,18 @@ int _HLineTextured(SDL_Surface *dest, Sint16 x1, Sint16 x2, Sint16 y, SDL_Surfac
 		source_rect.w = pixels_written;
 		source_rect.x = texture_x_walker;
 		dst_rect.x = x1;
-		dst_rect.w = source_rect.w;
-		result |= (SDL_BlitSurface(source, &source_rect, dest, &dst_rect) == 0);
+		dst_rect.w = source_rect.w; 
+		
+		Uint32 * source_pixels = (Uint32 *)source->pixels;
+		Uint32 * dest_pixels = (Uint32 *)dest->pixels;
+
+		int x_dist = dst_rect.w;
+		for (int x = 0; x < x_dist; x++) {
+			int dest_index = (dst_rect.y * dest->w) + dst_rect.x + x;
+			int sourcrc_index = (source_rect.y * dest->w) + source_rect.x + x;
+			dest_pixels[dest_index] = pixelfunc(dest_pixels[dest_index], source_pixels[sourcrc_index], dest->format, source->format);
+		}
+
 		write_width = texture_w;
 
 		// now draw the rest
@@ -97,7 +99,17 @@ int _HLineTextured(SDL_Surface *dest, Sint16 x1, Sint16 x2, Sint16 y, SDL_Surfac
 			source_rect.w = write_width;
 			dst_rect.x = x1 + pixels_written;
 			dst_rect.w = source_rect.w;
-			result |= (SDL_BlitSurface(source, &source_rect, dest, &dst_rect) == 0);
+			
+			Uint32 * source_pixels = (Uint32 *)source->pixels;
+			Uint32 * dest_pixels = (Uint32 *)dest->pixels;
+
+			int x_dist = dst_rect.w;
+			for (int x = 0; x < x_dist; x++) {
+				int dest_index = (dst_rect.y * dest->w) + dst_rect.x + x;
+				int sourcrc_index = (source_rect.y * dest->w) + source_rect.x + x;
+				dest_pixels[dest_index] = pixelfunc(dest_pixels[dest_index], source_pixels[sourcrc_index], dest->format, source->format);
+			}
+
 			pixels_written += write_width;
 		}
 	}
@@ -105,23 +117,7 @@ int _HLineTextured(SDL_Surface *dest, Sint16 x1, Sint16 x2, Sint16 y, SDL_Surfac
 	return result;
 }
 
-/*!
-\brief Draws a polygon filled with the given texture (Multi-Threading Capable).
-
-\param renderer The renderer to draw on.
-\param vx array of x vector components
-\param vy array of x vector components
-\param n the amount of vectors in the vx and vy array
-\param texture the sdl surface to use to fill the polygon
-\param texture_dx the offset of the texture relative to the screeen. If you move the polygon 10 pixels
-to the left and want the texture to apear the same you need to increase the texture_dx value
-\param texture_dy see texture_dx
-\param polyInts Preallocated temp array storage for vertex sorting (used for multi-threaded operation)
-\param polyAllocated Flag indicating oif the temp array was allocated (used for multi-threaded operation)
-
-\returns Returns 0 on success, -1 on failure.
-*/
-int texturedPolygon(SDL_Surface * dest, const Sint16 * vx, const Sint16 * vy, int n, SDL_Surface * texture, int texture_dx, int texture_dy, SDL_BlendMode blendMode) {
+int texturedPolygon(SDL_Surface * dest, const Sint16 * vx, const Sint16 * vy, int n, SDL_Surface * texture, int texture_dx, int texture_dy, Uint32(*pixelfunc)(Uint32, Uint32, SDL_PixelFormat *, SDL_PixelFormat *)) {
 	int result;
 	int i;
 	int y, xa, xb;
@@ -191,8 +187,6 @@ int texturedPolygon(SDL_Surface * dest, const Sint16 * vx, const Sint16 * vy, in
 		}
 	}
 
-	SDL_SetSurfaceBlendMode(texture, blendMode);
-
 	/*
 	* Draw, scanning y
 	*/
@@ -235,7 +229,7 @@ int texturedPolygon(SDL_Surface * dest, const Sint16 * vx, const Sint16 * vy, in
 			xa = (xa >> 16) + ((xa & 32768) >> 15);
 			xb = gfxPrimitivesPolyInts[i + 1] - 1;
 			xb = (xb >> 16) + ((xb & 32768) >> 15);
-			result |= _HLineTextured(dest, xa, xb, y, texture, texture->w, texture->h, texture_dx, texture_dy);
+			result |= _HLineTextured(dest, xa, xb, y, texture, texture->w, texture->h, texture_dx, texture_dy, pixelfunc);
 		}
 	}
 

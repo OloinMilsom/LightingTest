@@ -1,13 +1,23 @@
 #include "Light.h"
 #include "LightManager.h"
+#include "PolyDraw.h"
 #include <iostream>
+
+Uint32 blendFunc(Uint32 dest, Uint32 source, SDL_PixelFormat * destFormat, SDL_PixelFormat * sourceFormat) {
+	Uint8 dr, dg, db, da;
+	Uint8 sr, sg, sb, sa;
+	SDL_GetRGBA(dest, destFormat, &dr, &dg, &db, &da);
+	SDL_GetRGBA(source, sourceFormat, &sr, &sg, &sb, &sa);
+
+	return SDL_MapRGBA(destFormat, dr + sr <= 255 ? dr + sr : 255, dg + sg <= 255 ? dg + sg : 255, db + sb <= 255 ? db + sb : 255, da - sa >= 0 ? da - sa : 0);
+}
 
 Light::Light(int width, int height) {
 	m_surface = SDL_CreateRGBSurface(0, width, height, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
 	
 }
 
-bool Light::calculatePixelValue() {
+bool Light::calculatePixelValue(SDL_Surface * destSurface) {
 	Uint32 * upixels = static_cast<Uint32 *>(m_surface->pixels);
 
 	for (int i = 0; i < 800 * 600; i++) {
@@ -17,6 +27,7 @@ bool Light::calculatePixelValue() {
 	m_poly.xs.clear();
 	m_poly.ys.clear();
 	LightManager::getInstance()->calculateTriangles(m_pos, &m_poly);
+
 	for (int i = 0; i < 800 * 600; i++) {
 		int x = i % 800;
 		int y = i / 800;
@@ -31,7 +42,7 @@ bool Light::calculatePixelValue() {
 					//std::cout << "i: " << i << "\tr: " << static_cast<int>(r) << "\tg: " << static_cast<int>(g) << "\tb: " << static_cast<int>(b) << std::endl;
 					float scale = pow(m_intensity - distance, m_falloff) / pow(m_intensity, m_falloff);
 					float alphaSub = LightManager::m_instance->m_ambientLight * scale;
-					a - alphaSub > MIN_ALPHA ? a -= alphaSub : a = MIN_ALPHA;
+					a += alphaSub;
 					r += m_col.r * scale;
 					g += m_col.g * scale;
 					b += m_col.b * scale;
@@ -41,6 +52,9 @@ bool Light::calculatePixelValue() {
 			//}
 		}
 	}
+
+	texturedPolygon(destSurface, &m_poly.xs[0], &m_poly.ys[0], m_poly.xs.size(), m_surface, 0, 0, blendFunc);
+
 	return true;
 }
 
