@@ -143,6 +143,7 @@ void LightManager::render(SDL_Renderer * renderer) {
 	SDL_SetSurfaceBlendMode(m_surface, SDL_BlendMode::SDL_BLENDMODE_BLEND);
 	m_texture = SDL_CreateTextureFromSurface(renderer, m_surface);
 	SDL_RenderCopy(renderer, m_texture, NULL, NULL);
+	SDL_DestroyTexture(m_texture);
 
 	SDL_FillRect(m_surface, NULL, SDL_MapRGBA(m_surface->format, 0, 0, 0, m_isAmbient ? m_ambientLight : 255));
 }
@@ -154,12 +155,12 @@ void LightManager::setAmbient(bool val) {
 void LightManager::setAmbientIntensity(Uint8 val) {
 	m_ambientLight = 255 - val;
 	for (int i = 0; i < m_lights.size(); i++) {
-		m_lights[i]->m_minAlpha = m_ambientLight / 2;
+		m_lights[i]->setMinAlpha(m_ambientLight / 3);
 	}
 }
 
 Light * LightManager::addLight() {
-	Light * l = new Light(m_surface->w, m_surface->h, m_ambientLight / 2);
+	Light * l = new Light(m_surface->w, m_surface->h, m_ambientLight / 3);
 	m_lights.push_back(l);
 	return l;
 }

@@ -42,6 +42,9 @@
     <ClCompile Include="LightingComponent\src\PolyDraw.cpp">
       <Filter>Source Files\Component</Filter>
     </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -61,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="LightingComponent\include\PolyDraw.h">
       <Filter>Header Files\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

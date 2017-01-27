@@ -119,6 +119,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="LightingComponent\src\Light.cpp" />
     <ClCompile Include="LightingComponent\src\LightManager.cpp" />
     <ClCompile Include="LightingComponent\src\PolyDraw.cpp" />
@@ -128,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="LightingComponent\include\Light.h" />
     <ClInclude Include="LightingComponent\include\LightManager.h" />
     <ClInclude Include="LightingComponent\include\PolyDraw.h" />

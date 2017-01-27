@@ -1,16 +1,22 @@
 #pragma once
 #include "SDL.h"
 #include "LightManager.h"
+#include "GameObject.h"
 
 class Game {
 private:
 	SDL_Window * window;
 	SDL_Renderer * renderer;
-	Light * l1;
-	ShadowCaster * s1;
 
-	SDL_Rect sr1;
-	SDL_Rect sr2;
+	Light * l1;
+	Light * l2;
+
+	GameObject go1;
+	GameObject go2;
+
+	SDL_Rect back;
+
+	float intensity;
 public:
 	Game();
 	bool initSDL(int width, int height, const char * title);

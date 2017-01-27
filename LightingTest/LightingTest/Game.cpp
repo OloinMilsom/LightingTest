@@ -43,68 +43,77 @@ bool Game::initSDL(int width, int height, const char* title) {
 		return false;
 	}
 
-	sr1 = { 0, 0, 800, 600 };
-	sr2 = { rand() % 700, rand() % 500, 100, 100 };
+	back = { 0, 0, width, height };
+
+	intensity = 300;
 
 	LightManager::getInstance()->init(width, height, renderer);
 	l1 = LightManager::getInstance()->addLight();
 	l1->setPos(200, 300);
-	l1->setIntensity(400);
+	l1->setIntensity(intensity);
 	l1->setFalloff(2);
 	l1->setColour(0, 255, 220);
 
-	Light * l2 = LightManager::getInstance()->addLight();	
+	l2 = LightManager::getInstance()->addLight();	
 	l2->setPos(600, 300);
 	l2->setIntensity(300);
 	l2->setFalloff(2);
 	l2->setColour(255, 0, 255);
 
-	s1 = LightManager::getInstance()->addShadowObject();
-	s1->setPos(sr2.x, sr2.y);
-	s1->addVertex(0, 0);
-	s1->addVertex(100, 0);
-	s1->addVertex(100, 100);
-	s1->addVertex(0, 100);
-
-	ShadowCaster * s2 = LightManager::getInstance()->addShadowObject();
-	s2->setPos(rand() % 700, rand() % 500);
-	s2->addVertex(0, 0);
-	s2->addVertex(100, 0);
-	s2->addVertex(100, 100);
-	s2->addVertex(0, 100);
-
-	ShadowCaster * s3 = LightManager::getInstance()->addShadowObject();
-	s3->setPos(rand() % 700, rand() % 500);
-	s3->addVertex(0, 0);
-	s3->addVertex(100, 0);
-	s3->addVertex(100, 100);
-	s3->addVertex(0, 100);
-
 	LightManager::getInstance()->setAmbient(true);
-	LightManager::getInstance()->setAmbientIntensity(150);
+	LightManager::getInstance()->setAmbientIntensity(50);
+
+	go1 = GameObject({ 20, 20, 100, 100 }, { 123, 45, 67 });
+	go2 = GameObject({ 350, 250, 100, 100 }, { 76, 54, 32 });
 
 	return true;
 }
 
 void Game::loop() {
-	float counter = 0;
 	while (true) {
 
-		//LightManager::getInstance()->setAmbientIntensity(counter);
-		counter += 0.1f;
-		l1->setPos(400 + 100 * cos(counter), 300 + 100 * sin(counter));
-		//sr2 = { rand() % 700, rand() % 500, 100, 100 };
+		SDL_Event e;
 
-		//s1->setPos(sr2.x, sr2.y);
+		while (SDL_PollEvent(&e) != 0) {
+			switch (e.type) {
+			case SDL_KEYDOWN:
+				switch (e.key.keysym.sym) {
+				case SDLK_w:
+					go1.applyVector({ 0, -10 });
+					break;
+				case SDLK_a:
+					go1.applyVector({ -10, 0 });
+					break;
+				case SDLK_s:
+					go1.applyVector({ 0, 10 });
+					break;
+				case SDLK_d:
+					go1.applyVector({ 10, 0 });
+					break;
+				}
+				break;
+			case SDL_MOUSEMOTION:
+				l1->setPos(e.motion.x, e.motion.y);
+				break; 
+			case SDL_MOUSEBUTTONDOWN:
+				if (e.button.button == SDL_BUTTON_LEFT) {
+					intensity += 50;
+					if (intensity > 500) {
+						intensity = 150;
+					}
+					l1->setIntensity(intensity);
+				}
+				break;
+			}
+		}
+
 		LightManager::getInstance()->update();
 
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_SetRenderDrawColor(renderer, 128, 128, 255, 255);
 		SDL_RenderClear(renderer);
 
-		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 255);
-		SDL_RenderFillRect(renderer, &sr1);
-		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-		SDL_RenderFillRect(renderer, &sr2);
+		go1.render(renderer);
+		go2.render(renderer);
 
 		LightManager::getInstance()->render(renderer);
 
