@@ -119,10 +119,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_framerate.c" />
-    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_gfxPrimitives.c" />
-    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_imageFilter.c" />
-    <ClCompile Include="LightingComponent\SDL_gfx\SDL2_rotozoom.c" />
     <ClCompile Include="LightingComponent\src\Light.cpp" />
     <ClCompile Include="LightingComponent\src\LightManager.cpp" />
     <ClCompile Include="LightingComponent\src\PolyDraw.cpp" />
@@ -137,11 +133,6 @@
     <ClInclude Include="LightingComponent\include\PolyDraw.h" />
     <ClInclude Include="LightingComponent\include\Ray.h" />
     <ClInclude Include="LightingComponent\include\ShadowCaster.h" />
-    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_framerate.h" />
-    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_gfxPrimitives.h" />
-    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_gfxPrimitives_font.h" />
-    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_imageFilter.h" />
-    <ClInclude Include="LightingComponent\SDL_gfx\SDL2_rotozoom.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

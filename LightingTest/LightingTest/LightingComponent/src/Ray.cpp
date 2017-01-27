@@ -5,12 +5,24 @@ Ray::Ray(SDL_Point pos, SDL_Point dir) {
 	m_dir = dir;
 }
 
+void Ray::setPos(SDL_Point pos) {
+	m_pos = pos;
+}
+
+void Ray::setDir(SDL_Point dir) {
+	m_dir = dir;
+}
+
 SDL_Point Ray::getPos() const {
 	return m_pos;
 }
 
 SDL_Point Ray::getDir() const {
 	return m_dir;
+}
+
+float Ray::getAngle() const {
+	return atan2(m_dir.y, m_dir.x);
 }
 
 float Ray::getRayIntersect(Ray * other) const {

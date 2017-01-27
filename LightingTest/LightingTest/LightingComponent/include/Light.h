@@ -16,19 +16,19 @@ public:
 
 class Light {
 	friend class LightManager;
-private:
-	Light(int width, int height);
-	bool calculatePixelValue(SDL_Surface * destSurface);
-	Polygon getPoly() const;
-	SDL_Surface * getSurface() const;
+protected:
 
-	const Uint8 MIN_ALPHA = 100;
+	Light(int width, int height, Uint8 minAlpha);
+	bool calculatePixelValue(SDL_Surface * destSurface);
+
+	Uint8 m_minAlpha;
 	SDL_Point m_pos;
 	Uint16 m_intensity;
 	float m_falloff;
 	RGB m_col;
 	SDL_Surface * m_surface;
-	Polygon m_poly;
+	SDL_Surface * m_destSurface;
+	std::vector<Polygon> m_polys;
 public:
 	void setPos(int x, int y);
 	void setPos(SDL_Point point);

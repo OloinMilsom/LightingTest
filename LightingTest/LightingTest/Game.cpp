@@ -49,7 +49,7 @@ bool Game::initSDL(int width, int height, const char* title) {
 	LightManager::getInstance()->init(width, height, renderer);
 	l1 = LightManager::getInstance()->addLight();
 	l1->setPos(200, 300);
-	l1->setIntensity(300);
+	l1->setIntensity(400);
 	l1->setFalloff(2);
 	l1->setColour(0, 255, 220);
 
@@ -66,8 +66,22 @@ bool Game::initSDL(int width, int height, const char* title) {
 	s1->addVertex(100, 100);
 	s1->addVertex(0, 100);
 
+	ShadowCaster * s2 = LightManager::getInstance()->addShadowObject();
+	s2->setPos(rand() % 700, rand() % 500);
+	s2->addVertex(0, 0);
+	s2->addVertex(100, 0);
+	s2->addVertex(100, 100);
+	s2->addVertex(0, 100);
+
+	ShadowCaster * s3 = LightManager::getInstance()->addShadowObject();
+	s3->setPos(rand() % 700, rand() % 500);
+	s3->addVertex(0, 0);
+	s3->addVertex(100, 0);
+	s3->addVertex(100, 100);
+	s3->addVertex(0, 100);
+
 	LightManager::getInstance()->setAmbient(true);
-	LightManager::getInstance()->setAmbientIntensity(20);
+	LightManager::getInstance()->setAmbientIntensity(150);
 
 	return true;
 }
@@ -79,7 +93,7 @@ void Game::loop() {
 		//LightManager::getInstance()->setAmbientIntensity(counter);
 		counter += 0.1f;
 		l1->setPos(400 + 100 * cos(counter), 300 + 100 * sin(counter));
-		sr2 = { rand() % 700, rand() % 500, 100, 100 };
+		//sr2 = { rand() % 700, rand() % 500, 100, 100 };
 
 		//s1->setPos(sr2.x, sr2.y);
 		LightManager::getInstance()->update();

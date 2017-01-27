@@ -33,139 +33,118 @@ bool LightManager::init(int width, int height, SDL_Renderer * renderer) {
 
 	SDL_SetTextureBlendMode(m_texture, SDL_BLENDMODE_BLEND);
 
-	ShadowCaster * s = new ShadowCaster();
-	s->setPos(0, 0);
-	s->addVertex(0, 0);
-	s->addVertex(width, 0);
-	s->addVertex(width, height);
-	s->addVertex(0, height);
-	m_shadowCasters.push_back(s);
+	m_boundary = new ShadowCaster();
+	m_boundary->setPos(0, 0);
+	m_boundary->addVertex(0, 0);
+	m_boundary->addVertex(width, 0);
+	m_boundary->addVertex(width, height);
+	m_boundary->addVertex(0, height);
 
 	return true;
 }
 
-void LightManager::calculateTriangles(SDL_Point lightPoint, Polygon * poly) {
+void LightManager::calculateTriangles(SDL_Point lightPoint, std::vector<Polygon> * polys, Light * light) {
 	std::vector<Ray> rays;
-	for (int i = 0; i < m_shadowCasters.size(); i++) {
-		for (int j = 0; j < m_shadowCasters[i]->m_vertices.size(); j++) {
-			rays.push_back({ lightPoint,{ (m_shadowCasters[i]->m_pos.x + m_shadowCasters[i]->m_vertices[j].x - lightPoint.x), (m_shadowCasters[i]->m_pos.y + m_shadowCasters[i]->m_vertices[j].y - lightPoint.y) } });
-		}
-	}
-	std::sort(rays.begin(), rays.end());
+	if (!m_shadowCasters.empty()) {
+		for (int casterIndex = 0; casterIndex < m_shadowCasters.size(); casterIndex++) {
+			Polygon poly;
 
-	int prevCasterId = -1;
-	Ray prevRay({}, {});
-	for (int i = 0; i < rays.size(); i++) {
-		for (int j = 0; j < m_shadowCasters.size(); j++) {
-			m_shadowCasters[j]->getMinTVal(&rays[i], j);
-		}
-		rays[i].sortFactors();
-
-		if (prevCasterId != rays[i].getFactor(0).second) {
-			bool found = false;
-			for (int j = 0; j < rays[i].noOfFactors(); j++) {
-				if (rays[i].getFactor(j).second == prevCasterId) {
-					SDL_Point p1 = rays[i].endPointByFactor(rays[i].getFactor(j).first);
-					poly->xs.push_back(p1.x);
-					poly->ys.push_back(p1.y);
-					break;
-				}
+			for (int j = 0; j < m_shadowCasters[casterIndex]->m_vertices.size(); j++) {
+				rays.push_back({ lightPoint,{ (m_shadowCasters[casterIndex]->m_pos.x + m_shadowCasters[casterIndex]->m_vertices[j].x - lightPoint.x), (m_shadowCasters[casterIndex]->m_pos.y + m_shadowCasters[casterIndex]->m_vertices[j].y - lightPoint.y) } });
 			}
-			if (!found) {
-				for (int j = 0; j < prevRay.noOfFactors(); j++) {
-					if (prevRay.getFactor(j).second == rays[i].getFactor(0).second) {
-						SDL_Point p1 = prevRay.endPointByFactor(prevRay.getFactor(j).first);
-						poly->xs.push_back(p1.x);
-						poly->ys.push_back(p1.y);
+			for (int i = 0; i < m_boundary->m_vertices.size(); i++) {
+				rays.push_back({ lightPoint,{ (m_boundary->m_pos.x + m_boundary->m_vertices[i].x - lightPoint.x), (m_boundary->m_pos.y + m_boundary->m_vertices[i].y - lightPoint.y) } });
+			}
+
+			std::sort(rays.begin(), rays.end());
+
+			int prevCasterId = -1;
+			Ray prevRay({}, {});
+			for (int i = 0; i < rays.size(); i++) {
+				m_boundary->getMinTVal(&rays[i], 0);
+				m_shadowCasters[casterIndex]->getMinTVal(&rays[i], casterIndex + 1);
+				rays[i].sortFactors();
+
+				if (prevCasterId != rays[i].getFactor(0).second) {
+					bool found = false;
+					for (int j = 0; j < rays[i].noOfFactors(); j++) {
+						if (rays[i].getFactor(j).second == prevCasterId) {
+							SDL_Point p1 = rays[i].endPointByFactor(rays[i].getFactor(j).first);
+							poly.xs.push_back(p1.x);
+							poly.ys.push_back(p1.y);
+							break;
+						}
+					}
+					if (!found) {
+						for (int j = 0; j < prevRay.noOfFactors(); j++) {
+							if (prevRay.getFactor(j).second == rays[i].getFactor(0).second) {
+								SDL_Point p1 = prevRay.endPointByFactor(prevRay.getFactor(j).first);
+								poly.xs.push_back(p1.x);
+								poly.ys.push_back(p1.y);
+								break;
+							}
+						}
+					}
+				}
+
+				SDL_Point p = rays[i].endPointByFactor(rays[i].getFactor(0).first);
+				poly.xs.push_back(p.x);
+				poly.ys.push_back(p.y);
+				prevCasterId = rays[i].getFactor(0).second;
+				prevRay = rays[i];
+			}
+
+			bool found = false;
+			for (int j = 0; j < rays[0].noOfFactors(); j++) {
+				if (rays[0].getFactor(j).second == prevCasterId) {
+					if (rays[0].getFactor(j).second == prevCasterId) {
+						SDL_Point p1 = rays[0].endPointByFactor(rays[0].getFactor(j).first);
+						poly.xs.push_back(p1.x);
+						poly.ys.push_back(p1.y);
 						break;
 					}
 				}
-			}
-		}
-
-		SDL_Point p = rays[i].endPointByFactor(rays[i].getFactor(0).first);
-		poly->xs.push_back(p.x);
-		poly->ys.push_back(p.y);
-		prevCasterId = rays[i].getFactor(0).second;
-		prevRay = rays[i];
-	}
-
-	bool found = false;
-	for (int j = 0; j < rays[0].noOfFactors(); j++) {
-		if (rays[0].getFactor(j).second == prevCasterId) {
-			if (rays[0].getFactor(j).second == prevCasterId) {
-				SDL_Point p1 = rays[0].endPointByFactor(rays[0].getFactor(j).first);
-				poly->xs.push_back(p1.x);
-				poly->ys.push_back(p1.y);
-				break;
-			}
-		}
-		if (!found) {
-			for (int j = 0; j < prevRay.noOfFactors(); j++) {
-				if (prevRay.getFactor(j).second == rays[0].getFactor(0).second) {
-					SDL_Point p1 = prevRay.endPointByFactor(prevRay.getFactor(j).first);
-					poly->xs.push_back(p1.x);
-					poly->ys.push_back(p1.y);
-					break;
+				if (!found) {
+					for (int j = 0; j < prevRay.noOfFactors(); j++) {
+						if (prevRay.getFactor(j).second == rays[0].getFactor(0).second) {
+							SDL_Point p1 = prevRay.endPointByFactor(prevRay.getFactor(j).first);
+							poly.xs.push_back(p1.x);
+							poly.ys.push_back(p1.y);
+							break;
+						}
+					}
 				}
 			}
+			rays.clear();
+			polys->push_back(poly);
 		}
+	}
+	else {
+		Polygon poly;
+		poly.xs.push_back(0);
+		poly.xs.push_back(m_surface->w);
+		poly.xs.push_back(m_surface->w);
+		poly.xs.push_back(0);
+		poly.ys.push_back(0);
+		poly.ys.push_back(0);
+		poly.ys.push_back(m_surface->h);
+		poly.ys.push_back(m_surface->h);
+		polys->push_back(poly);
 	}
 }
 
 void LightManager::update() {
-	//void * pixels;
-
-	SDL_Rect t;
-	t.x = t.y = 0;
-	t.w = 800;
-	t.h = 600;
-	//SDL_FillRect(m_surface, &t, SDL_MapRGBA(m_surface->format, 0,0,0, m_ambientLight));
-
-	//SDL_LockTexture(m_texture, &m_surface->clip_rect, &pixels, &m_surface->pitch);
-
-	//memcpy(pixels, m_surface->pixels, m_surface->w * m_surface->h);
-
 	for (int j = 0; j < m_lights.size(); j++) {
 		m_lights[j]->calculatePixelValue(m_surface);
 	}
-	SDL_UnlockTexture(m_texture);
 }
 
 void LightManager::render(SDL_Renderer * renderer) {
-
-	//SDL_SetRenderDrawBlendMode(renderer, SDL_BlendMode::SDL_BLENDMODE_BLEND);
-	SDL_Rect r;
-	r.x = r.y = 0;
-	r.w = 800;
-	r.h = 600;
-	//SDL_RenderFillRect(renderer, &r);
-	//SDL_SetRenderDrawBlendMode(renderer, SDL_BlendMode::SDL_BLENDMODE_NONE);
-	//for (int i = 0; i < m_lights.size(); i++) {
-	//	if (!m_lights[i]->getPoly().xs.empty()) {
-	//		texturedPolygon(m_surface, &m_lights[i]->getPoly().xs[0], &m_lights[i]->getPoly().ys[0], m_lights[i]->getPoly().xs.size(), m_lights[i]->getSurface(), 0, 0, SDL_BlendMode::SDL_BLENDMODE_ADD);
-	//	}
-	//}
 	SDL_SetSurfaceBlendMode(m_surface, SDL_BlendMode::SDL_BLENDMODE_BLEND);
-	SDL_Texture * tex = SDL_CreateTextureFromSurface(renderer, m_surface);
-	SDL_RenderCopy(renderer, tex, NULL, NULL);
-	SDL_DestroyTexture(tex);
+	m_texture = SDL_CreateTextureFromSurface(renderer, m_surface);
+	SDL_RenderCopy(renderer, m_texture, NULL, NULL);
 
-	SDL_FillRect(m_surface, &r, SDL_MapRGBA(m_surface->format, 0, 0, 0, m_ambientLight));
-	//m_poly.xs.clear();
-	//m_poly.ys.clear();
-	//SDL_Rect r;
-	//r.x = r.y = 0;
-	//r.w = 800;
-	//r.h = 600;
-	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
-	//SDL_RenderDrawRect(renderer, &r);
-	/*for (int i = 0; i < m_triangles.size(); i++) {
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		SDL_RenderDrawLine(renderer, m_triangles[i].p1.x, m_triangles[i].p1.y, m_triangles[i].p2.x, m_triangles[i].p2.y);
-		SDL_RenderDrawLine(renderer, m_triangles[i].p2.x, m_triangles[i].p2.y, m_triangles[i].p3.x, m_triangles[i].p3.y);
-		SDL_RenderDrawLine(renderer, m_triangles[i].p3.x, m_triangles[i].p3.y, m_triangles[i].p1.x, m_triangles[i].p1.y);
-	}*/
+	SDL_FillRect(m_surface, NULL, SDL_MapRGBA(m_surface->format, 0, 0, 0, m_isAmbient ? m_ambientLight : 255));
 }
 
 void LightManager::setAmbient(bool val) {
@@ -174,19 +153,29 @@ void LightManager::setAmbient(bool val) {
 
 void LightManager::setAmbientIntensity(Uint8 val) {
 	m_ambientLight = 255 - val;
+	for (int i = 0; i < m_lights.size(); i++) {
+		m_lights[i]->m_minAlpha = m_ambientLight / 2;
+	}
 }
 
 Light * LightManager::addLight() {
-	//if (m_lights.find(id) == m_lights.end()) {
-	Light * l = new Light(m_surface->w, m_surface->h);
+	Light * l = new Light(m_surface->w, m_surface->h, m_ambientLight / 2);
 	m_lights.push_back(l);
 	return l;
-	//}
-	//return false;
+}
+
+void LightManager::deleteLight(Light * light) {
+	m_lights.erase(std::remove(m_lights.begin(), m_lights.end(), light), m_lights.end());
+	delete light;
 }
 
 ShadowCaster * LightManager::addShadowObject() {
 	ShadowCaster * s = new ShadowCaster();
 	m_shadowCasters.push_back(s);
 	return s;
+}
+
+void LightManager::deleteShadowObject(ShadowCaster * shadowCaster) {
+	m_shadowCasters.erase(std::remove(m_shadowCasters.begin(), m_shadowCasters.end(), shadowCaster), m_shadowCasters.end());
+	delete shadowCaster;
 }

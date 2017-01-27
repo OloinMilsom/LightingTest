@@ -11,19 +11,17 @@ private:
 	static LightManager * m_instance;
 	SDL_Surface * m_surface;
 	SDL_Surface * m_shadowSurface;
-	SDL_Texture * m_texture; 
+	SDL_Texture * m_texture;
+
 	std::vector<Light *> m_lights;
 	std::vector<ShadowCaster *> m_shadowCasters;
-
-	// temp visualisation of triangles
-	//std::vector<Triangle> m_triangles;
-	//Polygon m_poly;
+	ShadowCaster * m_boundary;
 
 	bool m_isAmbient;
 	Uint8 m_ambientLight;
 
 	LightManager();
-	void calculateTriangles(SDL_Point lightPoint, Polygon * poly);
+	void calculateTriangles(SDL_Point lightPoint, std::vector<Polygon> * polys, Light * light);
 public:
 	static LightManager * getInstance();
 	bool init(int width, int height, SDL_Renderer * renderer);
@@ -32,6 +30,8 @@ public:
 	void setAmbient(bool val);
 	void setAmbientIntensity(Uint8 val);
 	Light * addLight();
+	void deleteLight(Light * light);
 	ShadowCaster * addShadowObject();
+	void deleteShadowObject(ShadowCaster * shadowCaster);
 };
 
