@@ -137,6 +137,7 @@ void LightManager::update() {
 	for (int j = 0; j < m_lights.size(); j++) {
 		m_lights[j]->calculatePixelValue(m_surface);
 	}
+	m_recalculatePolys = false;
 }
 
 void LightManager::render(SDL_Renderer * renderer) {

@@ -32,29 +32,45 @@ Light::Light(int width, int height, Uint8 minAlpha)
 }
 
 bool Light::calculatePixelValue(SDL_Surface * destSurface) {
-	m_polys.clear();
-	m_polys.clear();
-	LightManager::getInstance()->calculateTriangles(m_pos, &m_polys, this);
 
-	SDL_SetSurfaceBlendMode(m_lightSurface, SDL_BlendMode::SDL_BLENDMODE_NONE);
-	SDL_Rect lRect{ m_pos.x - m_intensity, m_pos.y - m_intensity, m_lightSurface->w , m_lightSurface->h };
-	SDL_BlitSurface(m_lightSurface, NULL, m_surface, &lRect);
+	if (m_recalculatePolys || LightManager::getInstance()->m_recalculatePolys) {
+		SDL_FillRect(m_surface, NULL, 0);
 
-	SDL_Rect clearRect{ 0,0,m_surface->w, m_surface->h };
-	if (m_polys.size() > 1) {
-		for (int i = 0; i < m_polys.size() - 1; i++) {
-			SDL_FillRect(m_destSurface, &clearRect, 0x00000000);
-			texturedPolygon(m_destSurface, &m_polys[i].xs[0], &m_polys[i].ys[0], m_polys[i].xs.size(), m_surface, 0, 0, noneFunc);
-			SDL_SetSurfaceBlendMode(m_destSurface, SDL_BlendMode::SDL_BLENDMODE_NONE);
-			SDL_BlitSurface(m_destSurface, NULL, m_surface, NULL);
+		m_polys.clear();
+		m_polys.clear();
+		LightManager::getInstance()->calculateTriangles(m_pos, &m_polys, this);
+
+		SDL_SetSurfaceBlendMode(m_lightSurface, SDL_BlendMode::SDL_BLENDMODE_NONE);
+		SDL_Rect lRect{ m_pos.x - m_intensity, m_pos.y - m_intensity, m_lightSurface->w , m_lightSurface->h };
+		SDL_BlitSurface(m_lightSurface, NULL, m_surface, &lRect);
+
+		SDL_Rect clearRect{ 0,0,m_surface->w, m_surface->h };
+		if (m_polys.size() > 1) {
+			for (int i = 0; i < m_polys.size(); i++) {
+				SDL_FillRect(m_destSurface, &clearRect, 0x00000000);
+				texturedPolygon(m_destSurface, &m_polys[i].xs[0], &m_polys[i].ys[0], m_polys[i].xs.size(), m_surface, 0, 0, noneFunc);
+				SDL_SetSurfaceBlendMode(m_destSurface, SDL_BlendMode::SDL_BLENDMODE_NONE);
+				SDL_BlitSurface(m_destSurface, NULL, m_surface, NULL);
+			}
 		}
-		texturedPolygon(destSurface, &m_polys[m_polys.size() - 1].xs[0], &m_polys[m_polys.size() - 1].ys[0], m_polys[m_polys.size() - 1].xs.size(), m_destSurface, 0, 0, blendFunc);
-	}
-	else {
-		texturedPolygon(destSurface, &m_polys[0].xs[0], &m_polys[0].ys[0], m_polys[0].xs.size(), m_surface, 0, 0, blendFunc);
+		m_recalculatePolys = false;
 	}
 
-	SDL_FillRect(m_surface, NULL, 0);
+	Polygon poly;
+	poly.xs.push_back(0);
+	poly.ys.push_back(0);
+
+	poly.xs.push_back(m_surface->w);
+	poly.ys.push_back(0);
+
+	poly.xs.push_back(m_surface->w);
+	poly.ys.push_back(m_surface->h);
+
+	poly.xs.push_back(0);
+	poly.ys.push_back(m_surface->h);
+
+	texturedPolygon(destSurface, &m_polys[0].xs[0], &m_polys[0].ys[0], m_polys[0].xs.size(), m_surface, 0, 0, blendFunc);
+
 	return true;
 }
 
@@ -89,10 +105,12 @@ void Light::recalculateLight() {
 
 void Light::setPos(int x, int y) {
 	m_pos = { x, y };
+	m_recalculatePolys = true;
 }
 
 void Light::setPos(SDL_Point point) {
 	m_pos = point;
+	m_recalculatePolys = true;
 }
 
 void Light::setIntensity(Uint16 intensity) {

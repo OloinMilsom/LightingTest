@@ -1,5 +1,5 @@
 #pragma once
-#include "SDL.h"
+#include "SDL2\SDL.h"
 #include <vector>
 
 struct Polygon {
@@ -31,6 +31,7 @@ protected:
 	SDL_Surface * m_surface;
 	SDL_Surface * m_destSurface;
 	std::vector<Polygon> m_polys;
+	bool m_recalculatePolys = false;
 public:
 	void setPos(int x, int y);
 	void setPos(SDL_Point point);

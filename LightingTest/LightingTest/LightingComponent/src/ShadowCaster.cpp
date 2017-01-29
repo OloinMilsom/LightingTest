@@ -1,4 +1,5 @@
 #include "ShadowCaster.h"
+#include "LightManager.h"
 
 ShadowCaster::ShadowCaster() {
 }
@@ -27,10 +28,12 @@ void ShadowCaster::getMinTVal(Ray * ray, int id) const {
 
 void ShadowCaster::setPos(int x, int y){
 	m_pos = { x, y };
+	LightManager::getInstance()->m_recalculatePolys = true;
 }
 
 void ShadowCaster::setPos(SDL_Point point) {
 	m_pos = point;
+	LightManager::getInstance()->m_recalculatePolys = true;
 }
 
 void ShadowCaster::addVertex(int x, int y) {

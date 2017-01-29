@@ -1,12 +1,13 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "SDL.h"
+#include "SDL2\SDL.h"
 #include "Light.h"
 #include "ShadowCaster.h"
 
 class LightManager {
 	friend class Light;
+	friend class ShadowCaster;
 private:
 	static LightManager * m_instance;
 	SDL_Surface * m_surface;
@@ -18,6 +19,7 @@ private:
 	ShadowCaster * m_boundary;
 
 	bool m_isAmbient;
+	bool m_recalculatePolys = true;
 	Uint8 m_ambientLight;
 
 	LightManager();
